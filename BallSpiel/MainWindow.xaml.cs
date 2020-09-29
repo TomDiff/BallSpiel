@@ -22,12 +22,16 @@ namespace BallSpiel
     public partial class MainWindow : Window
     {
         private readonly DispatcherTimer _animantionsTimer = new DispatcherTimer();
-        private bool gehtNachRechts;
+        private bool gehtNachRechts = true;
+        private bool gehtNachUnten = true;
+
+        private int zaehler = 0;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            _animantionsTimer.Interval = TimeSpan.FromMilliseconds(5);
+            _animantionsTimer.Interval = TimeSpan.FromMilliseconds(30);
             _animantionsTimer.Tick += PositioniereBall;
         }
 
@@ -52,7 +56,27 @@ namespace BallSpiel
             {
                 gehtNachRechts = true;
             }
-           
+
+            var y = Canvas.GetTop(Ball);
+
+            if (gehtNachUnten)
+            {
+                Canvas.SetTop(Ball, y + 5);
+            }
+            else
+            {
+                Canvas.SetTop(Ball, y - 5);
+            }
+
+            if (y >= Spielplatz.ActualHeight - Ball.ActualHeight)
+            {
+                gehtNachUnten = false;
+            }
+            else if (y <= 0)
+            {
+                gehtNachUnten = true;
+            }
+
         }
 
         private void StartStopButton_Click(object sender, RoutedEventArgs e)
@@ -64,6 +88,17 @@ namespace BallSpiel
             else
             {
                 _animantionsTimer.Start();
+                zaehler = 0;
+                SpielstandLabel.Content = $"{zaehler} Clicks";
+            }
+        }
+
+        private void Ball_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_animantionsTimer.IsEnabled)
+            {
+                zaehler += 1;
+                SpielstandLabel.Content = $"{zaehler} Clicks";
             }
         }
     }
